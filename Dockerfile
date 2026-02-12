@@ -38,7 +38,15 @@ RUN chown -R node:node /app
 # The node:22-bookworm image includes a 'node' user (uid 1000)
 # This reduces the attack surface by preventing container escape via root privileges
 USER node
-
+USER root
+COPY <<'EOF' /entrypoint.sh
+#!/bin/sh
+mkdir -p /data/.openclaw /data/workspace
+chown -R 1000:1000 /data
+exec su -s /bin/sh node -c "exec $*" -- "$@"
+EOF
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 # Start gateway server with default config.
 # Binds to loopback (127.0.0.1) by default for security.
 #
