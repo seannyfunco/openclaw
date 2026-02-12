@@ -37,20 +37,12 @@ RUN chown -R node:node /app
 # Security hardening: Run as non-root user
 # The node:22-bookworm image includes a 'node' user (uid 1000)
 # This reduces the attack surface by preventing container escape via root privileges
-USER node
-USER root
-COPY <<'EOF' /entrypoint.sh
-#!/bin/sh
-mkdir -p /data/.openclaw /data/workspace
-chown -R 1000:1000 /data
-exec su -s /bin/sh node -c "exec $*" -- "$@"
-EOF
+# Install gosu for stepping down from root
+RUN apt-get update && apt-get install -y --no-install-recommends gosu && rm -rf /var/lib/apt/lists/*
+
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Stay root so entrypoint can fix volume permissions, then drop to node
 ENTRYPOINT ["/entrypoint.sh"]
-# Start gateway server with default config.
-# Binds to loopback (127.0.0.1) by default for security.
-#
-# For container platforms requiring external health checks:
-#   1. Set OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_PASSWORD env var
-#   2. Override CMD: ["node","openclaw.mjs","gateway","--allow-unconfigured","--bind","lan"]
 CMD ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
