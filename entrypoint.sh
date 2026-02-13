@@ -27,20 +27,23 @@ if [ -f "$CONFIG_FILE" ]; then
     cfg.channels.telegram = cfg.channels.telegram || {};
     cfg.channels.telegram.botToken = process.env.TELEGRAM_BOT_TOKEN || cfg.channels.telegram.botToken;
     cfg.channels.telegram.dmPolicy = cfg.channels.telegram.dmPolicy || 'pairing';
-    delete cfg.agent;
+    cfg.env = cfg.env || {};
+    cfg.env.ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || cfg.env.ANTHROPIC_API_KEY;
     cfg.agents = cfg.agents || {};
     cfg.agents.defaults = cfg.agents.defaults || {};
     cfg.agents.defaults.model = cfg.agents.defaults.model || {};
     cfg.agents.defaults.model.primary = cfg.agents.defaults.model.primary || 'anthropic/claude-opus-4-6';
-    cfg.agents.defaults.auth = cfg.agents.defaults.auth || {};
-    cfg.agents.defaults.auth.anthropic = cfg.agents.defaults.auth.anthropic || {};
-    cfg.agents.defaults.auth.anthropic.apiKey = process.env.ANTHROPIC_API_KEY || cfg.agents.defaults.auth.anthropic.apiKey;
+    delete cfg.agent;
+    delete cfg.agents.defaults.auth;
     fs.writeFileSync('$CONFIG_FILE', JSON.stringify(cfg, null, 2));
   "
 else
   gosu node node -e "
     const fs = require('fs');
     const cfg = {
+      env: {
+        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY
+      },
       gateway: {
         bind: 'lan',
         trustedProxies: ['100.64.0.0/10', '10.0.0.0/8', '172.16.0.0/12'],
@@ -57,11 +60,6 @@ else
         defaults: {
           model: {
             primary: 'anthropic/claude-opus-4-6'
-          },
-          auth: {
-            anthropic: {
-              apiKey: process.env.ANTHROPIC_API_KEY
-            }
           }
         }
       }
