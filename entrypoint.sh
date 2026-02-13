@@ -23,6 +23,10 @@ if [ -f "$CONFIG_FILE" ]; then
     cfg.gateway.auth.token = cfg.gateway.auth.token || process.env.OPENCLAW_GATEWAY_TOKEN || 'railway-default-token';
     cfg.gateway.controlUi = cfg.gateway.controlUi || {};
     cfg.gateway.controlUi.allowInsecureAuth = true;
+    cfg.channels = cfg.channels || {};
+    cfg.channels.telegram = cfg.channels.telegram || {};
+    cfg.channels.telegram.botToken = process.env.TELEGRAM_BOT_TOKEN || cfg.channels.telegram.botToken;
+    cfg.channels.telegram.dmPolicy = cfg.channels.telegram.dmPolicy || 'pairing';
     fs.writeFileSync('$CONFIG_FILE', JSON.stringify(cfg, null, 2));
   "
 else
@@ -34,6 +38,12 @@ else
         trustedProxies: ['100.64.0.0/10', '10.0.0.0/8', '172.16.0.0/12'],
         auth: { mode: 'token', token: process.env.OPENCLAW_GATEWAY_TOKEN || 'railway-default-token' },
         controlUi: { allowInsecureAuth: true }
+      },
+      channels: {
+        telegram: {
+          botToken: process.env.TELEGRAM_BOT_TOKEN,
+          dmPolicy: 'pairing'
+        }
       }
     };
     fs.writeFileSync('$CONFIG_FILE', JSON.stringify(cfg, null, 2));
