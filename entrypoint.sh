@@ -10,28 +10,30 @@ export OPENCLAW_CONFIG_DIR=/data/.openclaw
 export OPENCLAW_GATEWAY_BIND=lan
 export HOME=/home/node
 
-# Force bind and auth in the config file
 CONFIG_FILE=/data/.openclaw/openclaw.json
 if [ -f "$CONFIG_FILE" ]; then
-  # Patch existing config to set bind=lan
   gosu node node -e "
     const fs = require('fs');
     const cfg = JSON.parse(fs.readFileSync('$CONFIG_FILE', 'utf8'));
     cfg.gateway = cfg.gateway || {};
     cfg.gateway.bind = 'lan';
+    cfg.gateway.trustedProxies = ['100.64.0.0/10', '10.0.0.0/8', '172.16.0.0/12'];
     cfg.gateway.auth = cfg.gateway.auth || {};
     cfg.gateway.auth.mode = cfg.gateway.auth.mode || 'token';
     cfg.gateway.auth.token = cfg.gateway.auth.token || process.env.OPENCLAW_GATEWAY_TOKEN || 'railway-default-token';
+    cfg.gateway.controlUi = cfg.gateway.controlUi || {};
+    cfg.gateway.controlUi.allowInsecureAuth = true;
     fs.writeFileSync('$CONFIG_FILE', JSON.stringify(cfg, null, 2));
   "
 else
-  # Create minimal config
   gosu node node -e "
     const fs = require('fs');
     const cfg = {
       gateway: {
         bind: 'lan',
-        auth: { mode: 'token', token: process.env.OPENCLAW_GATEWAY_TOKEN || 'railway-default-token' }
+        trustedProxies: ['100.64.0.0/10', '10.0.0.0/8', '172.16.0.0/12'],
+        auth: { mode: 'token', token: process.env.OPENCLAW_GATEWAY_TOKEN || 'railway-default-token' },
+        controlUi: { allowInsecureAuth: true }
       }
     };
     fs.writeFileSync('$CONFIG_FILE', JSON.stringify(cfg, null, 2));
