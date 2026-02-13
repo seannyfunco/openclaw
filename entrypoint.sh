@@ -27,6 +27,11 @@ if [ -f "$CONFIG_FILE" ]; then
     cfg.channels.telegram = cfg.channels.telegram || {};
     cfg.channels.telegram.botToken = process.env.TELEGRAM_BOT_TOKEN || cfg.channels.telegram.botToken;
     cfg.channels.telegram.dmPolicy = cfg.channels.telegram.dmPolicy || 'pairing';
+    cfg.agent = cfg.agent || {};
+    cfg.agent.model = cfg.agent.model || 'anthropic/claude-opus-4-6';
+    cfg.agent.auth = cfg.agent.auth || {};
+    cfg.agent.auth.anthropic = cfg.agent.auth.anthropic || {};
+    cfg.agent.auth.anthropic.apiKey = process.env.ANTHROPIC_API_KEY || cfg.agent.auth.anthropic.apiKey;
     fs.writeFileSync('$CONFIG_FILE', JSON.stringify(cfg, null, 2));
   "
 else
@@ -43,6 +48,14 @@ else
         telegram: {
           botToken: process.env.TELEGRAM_BOT_TOKEN,
           dmPolicy: 'pairing'
+        }
+      },
+      agent: {
+        model: 'anthropic/claude-opus-4-6',
+        auth: {
+          anthropic: {
+            apiKey: process.env.ANTHROPIC_API_KEY
+          }
         }
       }
     };
