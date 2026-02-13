@@ -13,4 +13,4 @@ export OPENCLAW_WORKSPACE_DIR=/data/workspace
 export OPENCLAW_CONFIG_DIR=/data/.openclaw
 export HOME=/home/node
 
-exec gosu node node openclaw.mjs gateway --allow-unconfigured --host 0.0.0.0 --port 8080
+exec gosu node "$@"
